@@ -1,32 +1,12 @@
-import bluetooth
+import serial
+import time
 
-def receiveMessages():
-    server_sock=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
-
-    port = 1
-    server_sock.bind(("",port))
-    server_sock.listen(1)
-
-    client_sock,address = server_sock.accept()
-    print("Accepted connection from " + str(address))
-
-    data = client_sock.recv(1024)
-    print("received [%s]" % data)
-
-    client_sock.close()
-    server_sock.close()
-
-def sendMessageTo(targetBluetoothMacAddress):
-    port = 1
-    sock=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
-    sock.connect((targetBluetoothMacAddress, port))
-    sock.send("hello!!")
-    sock.close()
-
-def lookUpNearbyBluetoothDevices():
-    nearby_devices = bluetooth.discover_devices()
-    for bdaddr in nearby_devices:
-        print(str(bluetooth.lookup_name( bdaddr )) + " [" + str(bdaddr) + "]")
-
-
-lookUpNearbyBluetoothDevices()
+def run(bluetooth):
+    bluetooth.write(b"BOOP "+str.encode(str(1)))#These need to be bytes not unicode, plus a number
+    input_data=bluetooth.readline()#This reads the incoming data. In this particular example it will be the "Hello from Blue" line
+    print(input_data.decode())#These are bytes coming in so a decode is needed
+    time.sleep(0.1) #A pause between bursts
+    # bluetooth.close() #Otherwise the connection will remain open until a timeout which ties up the /dev/thingamabob
+    temperature = input_data.decode()
+    temperature = temperature[:-2]
+    return float(temperature)
