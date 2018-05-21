@@ -30,7 +30,6 @@ def live_data():
     response = make_response(json.dumps(data))
     response.content_type = 'application/json'
     if temperature > 150:
-        sleep(1)
         music = pyglet.resource.media('alarm.wav')
         music.delete()
         music.play()
