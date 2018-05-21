@@ -34,7 +34,7 @@ def live_data():
         music = pyglet.resource.media('alarm.wav')
         music.delete()
         music.play()
-    if temperature > 150:
+    if temperature > 250:
         return redirect(url_for('shut'))
     return response
 
