@@ -1,12 +1,14 @@
 #include "SoftwareSerial.h"
+#include "LiquidCrystal.h"
+
 SoftwareSerial serial_connection(8, 9);//Create a serial connection with TX and RX on these pins
 #define BUFFER_SIZE 64//This will prevent buffer overruns.
 char inData[BUFFER_SIZE];//This is a character buffer where the data sent by the python script will go.
 char inChar=-1;//Initialie the first character as nothing
 int count=0;//This is the number of lines sent in from the python script
 int i=0;//Arduinos are not the most capable chips in the world so I just create the looping variable once
-float temperatura;
-float lectura = analogRead(A0);
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
 void setup()
 {
@@ -14,7 +16,26 @@ void setup()
   serial_connection.begin(9600);//Initialize communications with the bluetooth module
   serial_connection.println("Ready!!!");//Send something to just start comms. This will never be seen.
   Serial.println("Started");//Tell the serial monitor that the sketch has started.
+
+
+  
+  lcd.begin(16,2);
+  lcd.print("C=");
+  lcd.setCursor(0,1);
+  lcd.print("Temperatura");
+
+  
 }
+
+float centi()
+{// Funcion para leer el dato analogico y convertirlo a digital:
+  int dato;
+  float c;
+  dato=analogRead(A0);
+  c = (500.0 * dato)/1023;
+  return (c);
+}
+
 void loop()
 {
   //This will prevent bufferoverrun errors
@@ -36,11 +57,20 @@ void loop()
     inData[i]='\0';//This ends the character array with a null character. This signals the end of a string
     if(String(inData)=="BOOP 1")//Again this is an arbitrary choice. It would probably be something like: MOTOR_STOP
     {
-      temperatura=random(300);
+      
+      
+      float Centigrados = centi();
+  
+      lcd.setCursor(2,0);
+      lcd.print(Centigrados);
+  
+
+      
+      //temperatura=random(300);
       Serial.print ("temperatura: ");
-      Serial.print (temperatura);
+      Serial.print (Centigrados);
       Serial.println (" grados");
-      serial_connection.println(temperatura);//Then send an incrmented string back to the python script
+      serial_connection.println(Centigrados);//Then send an incrmented string back to the python script
     }
    
   }
